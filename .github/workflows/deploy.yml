@@ -1,0 +1,90 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: jelantahgo
+          POSTGRES_PASSWORD: jelantahgo123
+          POSTGRES_DB: jelantahgo_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run tests (if available)
+        run: |
+          echo "Tests would run here"
+          # python -m pytest tests/  # Uncomment when tests are added
+        continue-on-error: true
+      
+      - name: Check code syntax
+        run: |
+          python -m py_compile main.py
+          python -m py_compile models.py
+          python -m py_compile schemas.py
+          python -m py_compile crud.py
+          python -m py_compile auth.py
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to Railway
+        if: env.RAILWAY_TOKEN != ''
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "Deploying to Railway..."
+          # Railway auto-deploys on push, but you can add custom deployment steps here
+      
+      - name: Deploy to Render
+        if: env.RENDER_API_KEY != ''
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          echo "Deploying to Render..."
+          # Render auto-deploys on push, but you can add custom deployment steps here
+      
+      - name: Deploy to VPS (SSH)
+        if: env.VPS_HOST != ''
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          echo "Deploying to VPS..."
+          # Add VPS deployment script here
+          # ssh -i $VPS_SSH_KEY $VPS_USER@$VPS_HOST 'cd /path/to/app && git pull && ...'
+

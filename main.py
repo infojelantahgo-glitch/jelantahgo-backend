@@ -88,10 +88,20 @@ def get_current_user_info(current_user: models.User = Depends(get_current_user))
     return current_user
 
 # =====================
+# ROOT ENDPOINT
+# =====================
+
+@app.get("/")
+def root():
+    """Root endpoint - redirects to API documentation"""
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/docs")
+
+# =====================
 # DASHBOARD ENDPOINTS
 # =====================
 
-@app.post("/", response_model=schemas.DashboardResponse)
+@app.post("/dashboard", response_model=schemas.DashboardResponse)
 def get_dashboard(request: schemas.DashboardRequest, db: Session = Depends(get_db)):
     """Get role-specific dashboard summary"""
     if request.role == "admin":

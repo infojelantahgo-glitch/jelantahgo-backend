@@ -7,6 +7,7 @@ from typing import List, Optional
 import uvicorn
 from datetime import datetime, timedelta
 from pathlib import Path
+import os
 
 from database import get_db, engine
 import models
@@ -17,13 +18,15 @@ from email_service import send_order_confirmation_email, send_order_assigned_ema
 from file_upload import save_payment_proof, PAYMENT_PROOF_DIR
 
 # Create database tables (with error handling)
-try:
-    models.Base.metadata.create_all(bind=engine)
-    print("[OK] Database tables created successfully!")
-except Exception as e:
-    print(f"[WARNING] Could not create database tables: {str(e)}")
-    print("   Make sure PostgreSQL is running and database is created.")
-    print("   You can create tables later using: python init_db.py")
+# Skip in serverless environment (Vercel)
+if not os.getenv("VERCEL"):
+    try:
+        models.Base.metadata.create_all(bind=engine)
+        print("[OK] Database tables created successfully!")
+    except Exception as e:
+        print(f"[WARNING] Could not create database tables: {str(e)}")
+        print("   Make sure PostgreSQL is running and database is created.")
+        print("   You can create tables later using: python init_db.py")
 
 app = FastAPI(
     title="JelantahGO - Used Cooking Oil Pickup Management",
@@ -41,9 +44,11 @@ app.add_middleware(
 )
 
 # Mount static files for serving uploaded files
-uploads_dir = Path("uploads")
-uploads_dir.mkdir(exist_ok=True)
-app.mount("/files", StaticFiles(directory="uploads"), name="files")
+# Skip in serverless environment (Vercel) - use external storage instead
+if not os.getenv("VERCEL"):
+    uploads_dir = Path("uploads")
+    uploads_dir.mkdir(exist_ok=True)
+    app.mount("/files", StaticFiles(directory="uploads"), name="files")
 
 # =====================
 # AUTHENTICATION ENDPOINTS

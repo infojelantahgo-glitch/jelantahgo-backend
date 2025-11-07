@@ -10,9 +10,13 @@ PAYMENT_PROOF_DIR = UPLOAD_DIR / "payment_proofs"
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".pdf"}
 
-# Create upload directories
-UPLOAD_DIR.mkdir(exist_ok=True)
-PAYMENT_PROOF_DIR.mkdir(exist_ok=True)
+# Create upload directories (skip in Vercel - use external storage)
+if not os.getenv("VERCEL"):
+    try:
+        UPLOAD_DIR.mkdir(exist_ok=True)
+        PAYMENT_PROOF_DIR.mkdir(exist_ok=True)
+    except Exception as e:
+        print(f"[WARNING] Could not create upload directories: {str(e)}")
 
 def get_file_extension(filename: str) -> str:
     """Get file extension from filename"""

@@ -21,8 +21,12 @@ from file_upload import save_payment_proof, PAYMENT_PROOF_DIR
 # Skip in serverless environment (Vercel)
 if not os.getenv("VERCEL"):
     try:
-        models.Base.metadata.create_all(bind=engine)
-        print("[OK] Database tables created successfully!")
+        from database import engine
+        if engine is not None:
+            models.Base.metadata.create_all(bind=engine)
+            print("[OK] Database tables created successfully!")
+        else:
+            print("[WARNING] Database engine not available, skipping table creation")
     except Exception as e:
         print(f"[WARNING] Could not create database tables: {str(e)}")
         print("   Make sure PostgreSQL is running and database is created.")

@@ -6,6 +6,19 @@ import os
 import sys
 import json
 import traceback
+from pathlib import Path
+
+# Add parent directory to Python path so we can import from root
+# Vercel functions run from /var/task/api/, so we need to add parent to path
+current_dir = Path(__file__).parent
+parent_dir = current_dir.parent
+if str(parent_dir) not in sys.path:
+    sys.path.insert(0, str(parent_dir))
+
+# Log path information for debugging
+print(f"[DEBUG] Current directory: {current_dir}", file=sys.stderr)
+print(f"[DEBUG] Parent directory: {parent_dir}", file=sys.stderr)
+print(f"[DEBUG] Python path: {sys.path[:3]}", file=sys.stderr)
 
 # Set VERCEL environment variable to skip certain operations
 os.environ["VERCEL"] = "1"

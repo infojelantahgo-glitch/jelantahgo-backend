@@ -87,15 +87,15 @@ Jika diminta login, gunakan:
    - **Region:** Sama dengan Web Service
    - **PostgreSQL Version:** `14` (atau terbaru)
    - **Plan:** `Free`
-3. Klik **"Create Database"**
+3. Klik **"Cr**eate Database"
 4. **PENTING:** Copy **"Internal Database URL"** (akan digunakan nanti)
    - Format: `postgresql://jelantahgo:xxxxx@dpg-xxxxx/jelantahgo_db`
 
 ### 2.4 Kembali ke Web Service
 
 1. Klik **"New +"** → **"Web Service"** lagi
-2. Connect repository yang sama
-3. **Environment Variables** (klik "Advanced"):
+2. Conne
+3. **Environment Variables** (klik "Advancedct repository yang sama"):
    - Klik **"Add Environment Variable"**
    - Tambahkan satu per satu:
      
